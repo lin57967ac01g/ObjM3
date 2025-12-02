@@ -145,8 +145,21 @@ export function FlowBuilderCanvas({
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Delete' || e.key === 'Backspace') {
-                // Don't delete if editing text
+                // Don't delete if editing text in flow name
                 if (isEditingName) return;
+
+                // Don't delete if focus is on an editable element (input, textarea, select, contenteditable)
+                const target = e.target as HTMLElement;
+                if (target) {
+                    const tagName = target.tagName.toLowerCase();
+                    const isEditable = 
+                        tagName === 'input' || 
+                        tagName === 'textarea' || 
+                        tagName === 'select' ||
+                        target.isContentEditable;
+                    
+                    if (isEditable) return;
+                }
 
                 if (selectedNodeId) {
                     onDeleteNode(selectedNodeId);

@@ -21,6 +21,11 @@ export function ReportConfiguration({ initialData, availableSources, onSave, onC
       Array.isArray(initialData?.referenceData) ? initialData.referenceData : []
   );
   
+  // columnMappings: array of { column: string, mapping: string }
+  const [columnMappings, setColumnMappings] = useState<{ column: string; mapping: string }[]>(
+      initialData?.columnMappings || [{ column: 'column1', mapping: '' }]
+  );
+  
   const [summaryMethod, setSummaryMethod] = useState(initialData?.summaryMethod || '');
 
   const handleAddQuestion = () => {
@@ -49,6 +54,22 @@ export function ReportConfiguration({ initialData, availableSources, onSave, onC
       const newData = [...referenceData];
       newData.splice(index, 1);
       setReferenceData(newData);
+  };
+
+  const handleAddColumnMapping = () => {
+    setColumnMappings([...columnMappings, { column: 'column1', mapping: '' }]);
+  };
+
+  const handleRemoveColumnMapping = (index: number) => {
+    const newMappings = [...columnMappings];
+    newMappings.splice(index, 1);
+    setColumnMappings(newMappings);
+  };
+
+  const handleColumnMappingChange = (index: number, field: 'column' | 'mapping', value: string) => {
+    const newMappings = [...columnMappings];
+    newMappings[index][field] = value;
+    setColumnMappings(newMappings);
   };
 
   return (
@@ -147,6 +168,48 @@ export function ReportConfiguration({ initialData, availableSources, onSave, onC
                 </div>
             </div>
 
+            {/* Column Name Mapping */}
+            <div className="grid grid-cols-[168px_1fr] items-start gap-4">
+                <Label className="text-[18px] font-light text-[#484848] pt-2">
+                    <span className="text-[#940000] mr-1">*</span>
+                    Column Name mapping
+                </Label>
+                <div className="space-y-2">
+                    {columnMappings.map((mapping, i) => (
+                        <div key={i} className="relative flex items-center gap-2">
+                            <select 
+                                value={mapping.column}
+                                onChange={(e) => handleColumnMappingChange(i, 'column', e.target.value)}
+                                className="h-[31px] rounded-[10px] border border-[#cfcfcf] px-3 bg-white w-[140px]"
+                            >
+                                <option value="column1">column1</option>
+                                <option value="column2">column2</option>
+                                <option value="column3">column3</option>
+                            </select>
+                            <Input 
+                                value={mapping.mapping} 
+                                onChange={(e) => handleColumnMappingChange(i, 'mapping', e.target.value)}
+                                placeholder="Enter mapping name"
+                                className="h-[31px] rounded-[10px] border-[#cfcfcf] flex-1 pr-8" 
+                            />
+                            {columnMappings.length > 1 && (
+                                <button 
+                                    onClick={() => handleRemoveColumnMapping(i)}
+                                    className="absolute right-[-30px] text-[#9D9D9D] hover:text-red-500"
+                                >
+                                    <X size={20} />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                    <button onClick={handleAddColumnMapping} className="mt-2">
+                        <div className="bg-gray-100 rounded-full p-1 hover:bg-gray-200">
+                            <Plus size={20} className="text-[#9D9D9D]" />
+                        </div>
+                    </button>
+                </div>
+            </div>
+
             {/* How to Summary */}
             <div className="grid grid-cols-[168px_1fr] items-start gap-4">
                 <Label className="text-[18px] font-light text-[#484848] pt-2">
@@ -176,7 +239,7 @@ export function ReportConfiguration({ initialData, availableSources, onSave, onC
                     Cancel
                 </Button>
                 <Button 
-                    onClick={() => onSave({ description, questions, referenceData, summaryMethod })}
+                    onClick={() => onSave({ description, questions, referenceData, columnMappings, summaryMethod })}
                     className="w-[139px] h-[43px] text-[20px] bg-[#1d89ff] text-white hover:bg-blue-600"
                 >
                     Save
